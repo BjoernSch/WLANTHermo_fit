@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 from scipy.optimize import curve_fit
+import numpy as np
 import matplotlib as mpl
 mpl.use('Agg')
 from matplotlib import pyplot
@@ -11,7 +12,6 @@ temperaturen = []
 widerstaende = []
 
 for line in file:
-    print(line)
     (t, r) = line.split(';')
     temperaturen.append(float(t.replace(',','.')))
     widerstaende.append(float(r.replace(',','.')))
@@ -34,7 +34,7 @@ def diff_list(x, y):
         diff.append(a-b)
     return diff
 
-popt, pcov = curve_fit(r2t_wlt_plot, widerstaende, temperaturen)
+(popt, pcov) = curve_fit(r2t_wlt_plot, np.array(widerstaende), np.array(temperaturen))
 
 (a, b, c) = popt
 print(pcov)
@@ -50,6 +50,6 @@ pyplot.xlabel('Temperatur (°C)')
 pyplot.ylabel('Abweichung (°C)')
 pyplot.grid(True)
 fig.subplots_adjust(top=0.8)
-pyplot.figtext(0.93, 0.5, 'a: ' + str(a) + '\nb: ' + str(b) + '\nc: '+ str(c), bbox=dict(facecolor='white'))
+pyplot.figtext(0.5, 0.9, 'a: {0:1.7e}\nb: {1:1.7e}\nc: {2:1.7e}'.format(a,b,c), bbox=dict(facecolor='white'))
 pyplot.savefig("test.png")
 
