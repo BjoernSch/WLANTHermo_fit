@@ -35,6 +35,9 @@ class wlt_fit:
         self.maxtemp = 315
         self.steptemp = 5
         self.csvmode = 'de'
+        
+        self.beta_t1 = 25
+        self.beta_t2 = 85
 
     def do_fit(self):
         self.read_csv()
@@ -56,6 +59,7 @@ class wlt_fit:
     
     def do_report(self):
         self.calc_report()
+        self.calc_beta()
         self.write_reportcsv()
         self.write_reportdata()
         self.plot_report()
@@ -206,7 +210,13 @@ class wlt_fit:
         self.highres_area = highres_max - highres_min
         self.peak_res = peak_res
         self.peak_res_temp = peak_res_temp
-                               
+        
+        
+    def calc_beta(self):
+        rt1 = self.t2r(self.beta_t1)
+        rt2 = self.t2r(self.beta_t2)
+        self.beta = round(math.log(rt1 / rt2) / (1/(self.beta_t1 + 273.15) - 1/(elf.beta_t2 + 273.15)))
+
     def write_reportcsv(self):
        if self.csvmode == 'de':
             delimiter = ';'
@@ -226,7 +236,7 @@ class wlt_fit:
                 writer.writerow(conv_line)
     
     def write_reportdata(self):
-        fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp']
+        fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp', 'beta_t1', 'beta_t2', 'beta']
         reportdata = {}
         for field in fields:
             reportdata[field] = getattr(self, field)
@@ -261,5 +271,4 @@ if __name__ == "__main__":
     fitter.do_fit()
     fitter.do_fitreport()
     fitter.do_report()
-
-
+    
