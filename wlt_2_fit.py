@@ -24,7 +24,11 @@ class wlt_fit:
         self.err_a = 0.0
         self.err_b = 0.0
         self.err_c = 0.0
+        self.beta25_85 = None
         self.rt_table = []
+        self.r0 = 0
+        self.r25 = 0
+        self.r85 = 0
         
         self.rmess = 47
         self.uref = 3.3
@@ -172,7 +176,12 @@ class wlt_fit:
         u = (self.uref/(r_ntc+self.rmess))*r_ntc
         return u
     
-    
+    def get_beta(self, r1, t1, r2, t2):
+        beta = math.log(r1 / r2) / (1/(t1 + 273.15) - 1/(t2 + 273.15))
+        return beta
+        
+        
+        
     def calc_report(self):
         self.report = []
         lastval = None
@@ -201,6 +210,10 @@ class wlt_fit:
                                'u_adc':u_adc,
                                'adc': adc,
                                'resolution': resolution})
+        self.r0 = self.t2r(0)
+        self.r25 = self.t2r(25)
+        self.r85 = self.t2r(85)
+        self.beta25_85 = self.get_beta(self.r25, 25, self.r85, 85)
         self.highres_min = highres_min
         self.highres_max = highres_max
         self.highres_area = highres_max - highres_min
@@ -226,7 +239,7 @@ class wlt_fit:
                 writer.writerow(conv_line)
     
     def write_reportdata(self):
-        fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp']
+        fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'r0', 'r25', 'r85', 'beta25_85', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp']
         reportdata = {}
         for field in fields:
             reportdata[field] = getattr(self, field)
@@ -261,5 +274,3 @@ if __name__ == "__main__":
     fitter.do_fit()
     fitter.do_fitreport()
     fitter.do_report()
-
-
