@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# coding=utf-8
+
 import os
 from scipy.optimize import curve_fit
 import numpy as np
@@ -76,11 +78,14 @@ class wlt_fit:
         with open('{}.csv'.format(self.name), 'r', newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=delimiter)
             for line in reader:
+                if not line:
+                    continue
                 (t, r) = line
                 if t.startswith('temp'):
                     continue
-                self.rt_table.append({'temp_measured': float(t.replace(',','.')),
-                              'r_ntc': float(r.replace(',','.'))})
+                if not (t == '' or r == ''):
+                    self.rt_table.append({'temp_measured': float(t.replace(',','.')),
+                                  'r_ntc': float(r.replace(',','.'))})
     
     def r2t_wlt(self, rt, a, b, c):
         v = math.log(rt/self.rn)
@@ -139,6 +144,7 @@ class wlt_fit:
                 writer.writerow(conv_line)
     
     def plot_fit(self):
+        print('Creating fitting plot...')
         fig = pyplot.figure(1, figsize=(10.91,7.48))
         pyplot.subplot(2, 1, 1)
         pyplot.plot([x['temp_measured'] for x in self.rt_table], [x['r_ntc'] for x in self.rt_table], 's', label='Messpunkte')
@@ -178,9 +184,7 @@ class wlt_fit:
     
     def get_beta(self, r1, t1, r2, t2):
         beta = math.log(r1 / r2) / (1/(t1 + 273.15) - 1/(t2 + 273.15))
-        return beta
-        
-        
+        return beta  
         
     def calc_report(self):
         self.report = []
@@ -210,25 +214,28 @@ class wlt_fit:
                                'u_adc':u_adc,
                                'adc': adc,
                                'resolution': resolution})
+        
         self.r0 = self.t2r(0)
         self.r25 = self.t2r(25)
         self.r85 = self.t2r(85)
         self.beta25_85 = self.get_beta(self.r25, 25, self.r85, 85)
+        
         self.highres_min = highres_min
         self.highres_max = highres_max
         self.highres_area = highres_max - highres_min
+        
         self.peak_res = peak_res
         self.peak_res_temp = peak_res_temp
-                               
+        
     def write_reportcsv(self):
-       if self.csvmode == 'de':
+        if self.csvmode == 'de':
             delimiter = ';'
             dec_delimiter = ','
-       else:
+        else:
             delimiter = ','
             dec_delimiter = '.'
     
-       with open('{}_report.csv'.format(self.name),'w') as csvfile:
+        with open('{}_report.csv'.format(self.name),'w') as csvfile:
             fieldnames = ['temp', 'r_ntc', 'u_adc', 'adc', 'resolution']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter=delimiter)
             writer.writeheader()
@@ -239,6 +246,7 @@ class wlt_fit:
                 writer.writerow(conv_line)
     
     def write_reportdata(self):
+        print('Writing report data...')
         fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'r0', 'r25', 'r85', 'beta25_85', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp']
         reportdata = {}
         for field in fields:
@@ -247,6 +255,7 @@ class wlt_fit:
             jsonfile.write(json.dumps(reportdata, sort_keys=True, indent=4, separators=(',', ': ')))
     
     def plot_report(self):
+        print('Creating resolution plot...')
         fig = pyplot.figure(1, figsize=(10.91,7.48), dpi=400)
         pyplot.plot([x['temp'] for x in self.report], [x['resolution'] for x in self.report], '-', label='Auflösung')
         pyplot.xlabel('Temperatur (°C)')
@@ -268,9 +277,13 @@ if __name__ == "__main__":
         sys.exit('File "{}" is not a .csv file'.format(file_name))
 
     name = os.path.splitext(file_name)[0]
-
+    
+    print('Starting with %s' % file_name)
     fitter = wlt_fit(name)
-
+    
+    print('Curve fitting...')
     fitter.do_fit()
+    print('Creating fitting report...')
     fitter.do_fitreport()
+    print('Creating probe report...')
     fitter.do_report()
