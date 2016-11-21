@@ -34,8 +34,8 @@ class wlt_fit:
         self.r0 = 0
         self.r25 = 0
         self.r85 = 0
-        self.temp_adc20 = 0
-        self.temp_adc4075 = 0
+        self.temp_adc16 = 0
+        self.temp_adc4079 = 0
 
         self.rmess = 47
         self.uref = 3.3
@@ -219,9 +219,9 @@ class wlt_fit:
                     peak_res_temp = temp
 
                 if resolution <= 0.1:
-                    if highres_min is None:
-                        highres_min = temp
-                    highres_max = temp
+                    if highres_max is None:
+                        highres_max = temp
+                    highres_min = temp
                 lastval = temp
 
                 self.report.append({'temp': temp,
@@ -230,8 +230,8 @@ class wlt_fit:
                                'adc_value': adc_value,
                                'resolution': resolution})
 
-        self.temp_adc20 = self.r2t_wlt(self.rmess * ((4096/20) - 1), self.a, self.b, self.c)
-        self.temp_adc4075 = self.r2t_wlt(self.rmess * ((4096/4076) - 1), self.a, self.b, self.c)
+        self.temp_adc16 = self.r2t_wlt(self.rmess * ((4096/16) - 1), self.a, self.b, self.c)
+        self.temp_adc4079 = self.r2t_wlt(self.rmess * ((4096/4079) - 1), self.a, self.b, self.c)
         self.r0 = self.t2r(0)
         self.r25 = self.t2r(25)
         self.r85 = self.t2r(85)
@@ -264,7 +264,7 @@ class wlt_fit:
 
     def write_reportdata(self):
         print('Writing report data...')
-        fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'r0', 'r25', 'r85', 'beta25_85', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp', 'temp_adc4075', 'temp_adc20']
+        fields = ['name', 'rn', 'a', 'b', 'c', 'err_a', 'err_b', 'err_c', 'rmess', 'r0', 'r25', 'r85', 'beta25_85', 'highres_min', 'highres_max', 'highres_area', 'peak_res', 'peak_res_temp', 'temp_adc4079', 'temp_adc16']
         reportdata = {}
         for field in fields:
             reportdata[field] = getattr(self, field)
@@ -282,11 +282,11 @@ Resistance at 0°C | R<sub>25</sub> | {r0:.2f}k
 Resistance at 25°C | R<sub>25</sub> | {r25:.2f}k
 Resistance at 85°C | R<sub>25</sub> | {r85:.2f}k
 Beta 25°C to 85°C | B<sub>25/85</sub>| {beta25_85:.0f}K
-Minimum measurable temperature | | {temp_adc4075:.1f}°C
+Minimum measurable temperature | | {temp_adc16:.1f}°C
 Minimum high-res temperature | | {highres_min:.1f}°C
 Highest resolution || {peak_res:1.2e}°C/step at {peak_res_temp:.1f}°C
 Maximum high-res temperature | | {highres_max:.1f}°C
-Maximum measurable temperature | | {temp_adc20:.1f}°C
+Maximum measurable temperature | | {temp_adc4079:.1f}°C
 
 ### Probe curve data
 ![Probe fit chart]({name}_curve.png)
@@ -317,8 +317,8 @@ Steinhart-Hart coefficient | c | {c:1.7e} ± {err_c:1.7e}
         ax.axhline(1, color='yellow', lw=2, alpha=0.8)
         ax.fill_between(x_data, 0, 1, where=y_data <= self.highres, facecolor='green', alpha=0.3, transform=trans, linewidth=0.0)
         ax.fill_between(x_data, 0, 1, where=(y_data <= 1) & (~ (y_data <= self.highres)), facecolor='yellow', alpha=0.3, transform=trans, linewidth=0.0)
-        pyplot.axvline(self.temp_adc20, color='red')
-        pyplot.axvline(self.temp_adc4075, color='red')
+        pyplot.axvline(self.temp_adc16, color='red')
+        pyplot.axvline(self.temp_adc4079, color='red')
         pyplot.xlabel('Temperature (°C)')
         pyplot.ylabel('Resolution (°C/step)')
         pyplot.grid(True)
