@@ -283,9 +283,9 @@ Resistance at 25°C | R<sub>25</sub> | {r25:.2f}k
 Resistance at 85°C | R<sub>25</sub> | {r85:.2f}k
 Beta 25°C to 85°C | B<sub>25/85</sub>| {beta25_85:.0f}K
 Minimum measurable temperature | | {temp_adc4075:.1f}°C
-Minimum high-res temperature | | {highres_max:.1f}°C
+Minimum high-res temperature | | {highres_min:.1f}°C
 Highest resolution || {peak_res:1.2e}°C/step at {peak_res_temp:.1f}°C
-Maximum high-res temperature | | {highres_min:.1f}°C
+Maximum high-res temperature | | {highres_max:.1f}°C
 Maximum measurable temperature | | {temp_adc20:.1f}°C
 
 ### Probe curve data
