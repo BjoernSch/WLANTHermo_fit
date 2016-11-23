@@ -278,9 +278,9 @@ Values based on {rmess:.0f}k measurement resistor.
 
 Property | Symbol | Value
 -------- | -------- | --------
-Resistance at 0°C | R<sub>25</sub> | {r0:.2f}k
+Resistance at 0°C | R<sub>0</sub> | {r0:.2f}k
 Resistance at 25°C | R<sub>25</sub> | {r25:.2f}k
-Resistance at 85°C | R<sub>25</sub> | {r85:.2f}k
+Resistance at 85°C | R<sub>85</sub> | {r85:.2f}k
 Beta 25°C to 85°C | B<sub>25/85</sub>| {beta25_85:.0f}K
 Minimum measurable temperature | | {temp_adc16:.1f}°C
 Minimum high-res temperature | | {highres_min:.1f}°C
